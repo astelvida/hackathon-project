@@ -75,7 +75,6 @@ export const getMatches = (user) => ((dispatch) => {
     matches = matches.filter((uid, index) => matches.indexOf(uid) === index)
     result.forEach((categ, index) => final[categories[index]] = categ);
 
-    console.log('result', result)
     matches.forEach((uid) => {
       if (final.industry[uid] && final.role[uid] &&
         final.range[uid] && final.round[uid]) {

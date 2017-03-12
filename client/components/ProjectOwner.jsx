@@ -8,26 +8,37 @@ import SignUpIndustry from './signup/SignUpIndustry';
 import SignUpProduct from './signup/SignUpProduct';
 import Button from './button/Button';
 
+const initState = {
+  step: 1,
+  role: { Investor: false, 'Project Owner': false },
+  location: '',
+  industry: { Healthcare: false, FinTech: false, Consumer: false, 'Digital Media': false, Ecommerce: false, SaaS: false },
+  round: { Idea: false, Seed: false, 'Series A': false, 'Series B': false, After: false },
+  range: { '<100k': false, '100k-300k': false, '300k-500k': false, '500k-1M': false, '>1M': false },
+  product: {
+    Description: '',
+    Title: ''
+  }
+};
+
 
 class ProjectOwner extends Component {
   constructor(props) {
     super(props);
     const { location, industry, round, range, product, role } = this.props.auth.preferences;
-    this.state = {
-      step: 1,
-      role: { Investor: false, 'Project Owner': false },
-      location,
-      industry: { Healthcare: false, FinTech: false, Consumer: false, 'Digital Media': false, Ecommerce: false, SaaS: false },
-      round: { Idea: false, Seed: false, 'Series A': false, 'Series B': false, After: false },
-      range: { '<100k': false, '100k-300k': false, '300k-500k': false, '500k-1M': false, '>1M': false },
-      product,
-    };
-    this.state.role[Object.keys(role)] = true;
-    Object.keys(industry).forEach((key) => {
-      this.state.industry[key] = true;
-    });
-    this.state.round[Object.keys(round)] = true;
-    this.state.range[Object.keys(range)] = true;
+    const nextState = { ...initState };
+
+    for(var prop in nextState) {
+      for(var key in nextState[prop]) {
+        if(this.props.auth.preferences[prop][key]) {
+          nextState[prop][key] = this.props.auth.preferences[prop][key]
+        } else {
+          nextState[prop][key] = false;
+        }
+      }
+    }
+
+    this.state = nextState;
 
     this.handleChangeLocation = this.handleChangeLocation.bind(this);
     this.handleClickRound = this.handleClickRound.bind(this);
@@ -38,6 +49,12 @@ class ProjectOwner extends Component {
     this.handleSaveClick = this.handleSaveClick.bind(this);
   }
 
+    shouldComponentUpdate(nextProps) {
+      if(nextProps.auth.preferences !== this.props.auth.preferences) {
+        return false;
+      }
+      return true;
+    }
   handleChangeLocation(e) {
     this.setState({
       location: e.target.value,
@@ -51,11 +68,11 @@ class ProjectOwner extends Component {
       ...round,
       [e.target.name]: !this.state.round[e.target.name],
     };
-
     this.setState({
       round: newState,
     });
   }
+
 
   handleClickRange(e) {
     console.log('handleClickRange clicked', e.target.name);
@@ -72,14 +89,15 @@ class ProjectOwner extends Component {
 
   handleClickIndustry(e) {
     console.log('handleClickIndustry clicked', e.target.name);
-    const { range } = this.state;
+    const { industry } = this.state;
+    console.log('THIS', this)
     const newState = {
-      ...range,
+      ...industry,
       [e.target.name]: !this.state.industry[e.target.name],
     };
 
     this.setState({
-      range: newState,
+      industry: newState,
     });
   }
 
@@ -99,12 +117,15 @@ class ProjectOwner extends Component {
 
   handleSaveClick() {
     console.log('handleSaveClick clicked');
-    this.props.savePreferences(this.state);
+    const oldState = { ...this.state }
+    this.props.savePreferences(this.state)
   }
 
   render() {
+    // const stateCopy = { ...this.state, this.props.auth.preferences }
+    // console.log('',stateCopy)
     const { location, industry, round, range, product } = this.props.auth.preferences;
-    console.log('this.props: ', this.props);
+    // console.log('this.props: ', this.props);
 
     if (!product) {
       return <div />;
@@ -116,11 +137,11 @@ class ProjectOwner extends Component {
         <h3>Location</h3>
         <SignUpLocation changeHandler={this.handleChangeLocation} label={location} placeholderText={'Enter your city'} value={this.state.location} />
         <h3>Round</h3>
-        <SignUpRound clickHandler={this.handleClickRound} options={round} />
+        <SignUpRound clickHandler={this.handleClickRound} options={this.state.round} />
         <h3>Range</h3>
-        <SignUpRange clickHandler={this.handleClickRange} options={range} />
+        <SignUpRange clickHandler={this.handleClickRange} options={this.state.range} />
         <h3>Industry</h3>
-        <SignUpIndustry clickHandler={this.handleClickIndustry} options={industry} />
+        <SignUpIndustry clickHandler={this.handleClickIndustry} options={this.state.industry} />
         <h3>Product</h3>
         <SignUpProduct
           changeTitleHandler={this.handleChangeProductTitle}

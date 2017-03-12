@@ -17,7 +17,7 @@ class Home extends Component {
       <div>
         {this.props.auth.preferences.role.Investor ?
           <Investor {...this.props} /> :
-          <ProjectOwner {...this.props} />}
+          <ProjectOwner />}
       </div>
     );
   }
