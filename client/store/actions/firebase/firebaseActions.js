@@ -29,6 +29,7 @@ export const savePreferences = (preferences) => (dispatch) => {
   );
 };
 
+
 export const getPreferences = () => (
   (dispatch) => {
     dispatch({ type: GET_PREFERENCES });
@@ -74,6 +75,7 @@ export const getMatches = (user) => ((dispatch) => {
     matches = matches.filter((uid, index) => matches.indexOf(uid) === index)
     result.forEach((categ, index) => final[categories[index]] = categ);
 
+    console.log('result', result)
     matches.forEach((uid) => {
       if (final.industry[uid] && final.role[uid] &&
         final.range[uid] && final.round[uid]) {
@@ -81,7 +83,6 @@ export const getMatches = (user) => ((dispatch) => {
       }
     });
 
-    console.log(res2, final)
     const allUsers = res2.map((uid) => {
       const query = firebase.database().ref(`/byId/${uid}`);
       return new Promise((resolve) => {
